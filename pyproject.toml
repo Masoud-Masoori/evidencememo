@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "evidencememo"
+version = "0.1.0"
+description = "Autonomous Claude Code forensic investigator on SIFT — every finding cites the exact memory offset, disk artifact, or log entry."
+authors = [{ name = "Masoud Masoori", email = "masoud.masoori@mas-ai.co" }]
+license = { text = "BSD-3-Clause" }
+readme = "README.md"
+requires-python = ">=3.11"
+
+# Pinned exact per operator's policy. Volatility 3 is the SIFT-required forensics framework.
+dependencies = [
+    "anthropic==0.40.0",
+    "pydantic==2.10.4",
+    "typer==0.15.1",
+    "rich==13.9.4",
+    "volatility3==2.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.4",
+    "ruff==0.8.4",
+]
+
+[project.scripts]
+evidencememo = "evidencememo.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
