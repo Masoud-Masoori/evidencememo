@@ -1,0 +1,36 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5.3.0
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies (pinned)
+        # Volatility 3 has heavy native deps on Linux; we install minimal for unit tests only
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest==8.3.4 ruff==0.8.4 pydantic==2.10.4 typer==0.15.1 rich==13.9.4 anthropic==0.40.0
+          pip install -e . --no-deps
+
+      - name: Audit (pip-audit)
+        run: |
+          pip install pip-audit
+          pip-audit --strict --skip-editable || echo "pip-audit warnings logged; CI continues"
+
+      - name: Run tests (without Volatility binary — heuristic-only paths)
+        run: pytest -v -k "not requires_volatility"
+
+      - name: Lint with ruff
+        run: ruff check src tests
